@@ -14,13 +14,13 @@ model = Model(Ipopt.Optimizer)
 
 @variable(model, x[1:3])
 
-@constraint(model, x[1] >= -500)
-@constraint(model, x[2] >= -200)
-@constraint(model, x[3] >= -200)
+@constraint(model, x[1] >= 0 - shapley_A)
+@constraint(model, x[2] >= 0 - shapley_B)
+@constraint(model, x[3] >= 0 - shapley_C)
 
-@constraint(model, x[1] + x[2] >= -100)
-@constraint(model, x[1] + x[3] >= -100)
-@constraint(model, x[2] + x[3] >= -400)
+@constraint(model, x[1] + x[2] >= 600 - shapley_A - shapley_B)
+@constraint(model, x[1] + x[3] >= 600 - shapley_A - shapley_C)
+@constraint(model, x[2] + x[3] >= 0 - shapley_B - shapley_C)
 
 @constraint(model, x[1] + x[2] + x[3] == 0)
 
