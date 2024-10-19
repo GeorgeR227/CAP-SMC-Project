@@ -18,7 +18,7 @@ function core(players, payoff; shift = zeros(length(players)), solver = Ipopt.Op
   end
 
   @constraint(model, sum(x[1:n_players]) == payoff[players] - sum(shift))
-  
+
   set_silent(model)
   println(model)
 
@@ -32,8 +32,9 @@ function load_payoffs(coalitions, values)
   payoff
 end
 
-function max_unfairness(model, variables, shapley)
-  n_players = length(variables)
+function max_unfairness(players, payoff, shapley)
+  model, x = core(players, payoff; shift = shapley)
+  n_players = length(x)
 
   @objective(model, Max, sum(x[1:n_players].^2))
 
@@ -42,10 +43,10 @@ function max_unfairness(model, variables, shapley)
   
   @assert is_solved_and_feasible(model)
   # println(solution_summary(model; verbose = true))
-  println("Distance to farthest point from Shapley: $(sqrt(objective_value(model)))")
-
+  
   println("Shapley outcome was: $(shapley)")
   println("Unfair outcome was: $(value.(x) .+ shapley)")
+  println("Distance to farthest point from Shapley: $(sqrt(objective_value(model)))")
 end
 
 function max_playerwise(model, variables, player_id)
@@ -62,6 +63,20 @@ function max_playerwise(model, variables, player_id)
   println("Best outcome for player $player_id: $(value.(x))")
 end
 
+function shapley_feasible(players, payoff, shapley)
+  model, x = core(players, payoff)
+  n_players = length(x)
+
+  shapley_point = Dict(zip(x, shapley))
+
+
+  Random.seed!(1337)
+  feasible = isempty(primal_feasibility_report(model, shapley_point))
+
+  println("Shapley outcome was: $(shapley)")
+  println("Is Shapley in the core: $(feasible)")
+end
+
 players = [:A, :B, :C]
 n_players = length(players)
 coalitions = combinations(players)
@@ -75,12 +90,13 @@ shapley_C = ((2 * 0) + 600 + 0 + (2 * 300)) / 6
 
 shapley = [shapley_A, shapley_B, shapley_C]
 
-model, x = core(players, payoff; shift = shapley)
-max_unfairness(model, x, shapley)
+shapley_feasible(players, payoff, shapley)
 
 model, x = core(players, payoff)
 for i in 1:n_players
   max_playerwise(model, x, i)
 end
+
+max_unfairness(players, payoff, shapley)
 
 
