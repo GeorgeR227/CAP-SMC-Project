@@ -1,8 +1,10 @@
 using LinearAlgebra
 using JuMP
 using Ipopt
+using Combinatorics
+using Random
 
-function unfairness_solver(players, payoff, shapley; solver = Ipopt.Optimizer)
+function core(players, payoff; shift = zeros(length(players)), solver = Ipopt.Optimizer)
 
   model = Model(solver)
 
@@ -12,14 +14,15 @@ function unfairness_solver(players, payoff, shapley; solver = Ipopt.Optimizer)
 
   for coalition in coalitions
     coalition_players = map(x -> player_map[x], coalition)
-    @constraint(model, sum(x[coalition_players]) >= payoff[coalition] - sum(shapley[coalition_players]))
+    @constraint(model, sum(x[coalition_players]) >= payoff[coalition] - sum(shift[coalition_players]))
   end
 
-  @constraint(model, sum(x[1:n_players]) == 0)
+  @constraint(model, sum(x[1:n_players]) == payoff[players] - sum(shift))
+  
+  set_silent(model)
+  println(model)
 
-  @objective(model, Max, sum(x[1:n_players].^2))
-
-  (x, model)
+  (model, x)
 end
 
 function load_payoffs(coalitions, values)
@@ -29,7 +32,38 @@ function load_payoffs(coalitions, values)
   payoff
 end
 
+function max_unfairness(model, variables, shapley)
+  n_players = length(variables)
+
+  @objective(model, Max, sum(x[1:n_players].^2))
+
+  Random.seed!(1337)
+  optimize!(model);
+  
+  @assert is_solved_and_feasible(model)
+  # println(solution_summary(model; verbose = true))
+  println("Distance to farthest point from Shapley: $(sqrt(objective_value(model)))")
+
+  println("Shapley outcome was: $(shapley)")
+  println("Unfair outcome was: $(value.(x) .+ shapley)")
+end
+
+function max_playerwise(model, variables, player_id)
+  n_players = length(variables)
+
+  @objective(model, Max, x[player_id].^2)
+
+  Random.seed!(1337)
+  optimize!(model)
+
+  @assert is_solved_and_feasible(model)
+  # println(solution_summary(model; verbose = true))
+
+  println("Best outcome for player $player_id: $(value.(x))")
+end
+
 players = [:A, :B, :C]
+n_players = length(players)
 coalitions = combinations(players)
 values = [0,0,0, 600, 600, 0, 900]
 
@@ -41,15 +75,12 @@ shapley_C = ((2 * 0) + 600 + 0 + (2 * 300)) / 6
 
 shapley = [shapley_A, shapley_B, shapley_C]
 
-x, model = unfairness_solver(players, payoff, shapley)
+model, x = core(players, payoff; shift = shapley)
+max_unfairness(model, x, shapley)
 
-print(model)
+model, x = core(players, payoff)
+for i in 1:n_players
+  max_playerwise(model, x, i)
+end
 
-optimize!(model)
 
-@show is_solved_and_feasible(model)
-solution_summary(model; verbose = true)
-
-@show sqrt(objective_value(model))
-
-value.(x) + shapley
