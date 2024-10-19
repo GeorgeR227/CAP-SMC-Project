@@ -4,6 +4,8 @@ using Ipopt
 using Combinatorics
 using Random
 
+export core, load_payoffs, max_unfairness, max_playerwise, shapley_feasible
+
 function core(players, payoff; shift = zeros(length(players)), solver = Ipopt.Optimizer)
 
   model = Model(solver)
@@ -12,7 +14,7 @@ function core(players, payoff; shift = zeros(length(players)), solver = Ipopt.Op
   @variable(model, x[1:n_players])
   player_map = Dict(zip(players, 1:n_players))
 
-  for coalition in coalitions
+  for coalition in combinations(players)
     coalition_players = map(x -> player_map[x], coalition)
     @constraint(model, sum(x[coalition_players]) >= payoff[coalition] - sum(shift[coalition_players]))
   end
@@ -47,9 +49,9 @@ function max_unfairness(players, payoff, shapley)
   println("Distance to farthest point from Shapley: $(sqrt(objective_value(model)))")
 end
 
-function max_playerwise(model, variables)
+function max_playerwise(players, payoff)
   model, x = core(players, payoff)
-  n_players = length(variables)
+  n_players = length(x)
 
   for player_id in 1:n_players
     @objective(model, Max, x[player_id])
@@ -76,29 +78,5 @@ function shapley_feasible(players, payoff, shapley)
   println("Shapley outcome was: $(shapley)")
   println("Is Shapley in the core: $(feasible)")
 end
-
-players = [:A, :B, :C]
-n_players = length(players)
-coalitions = combinations(players)
-values = [0,0,0, 600, 600, 0, 900]
-
-payoff = load_payoffs(coalitions, values)
-
-shapley_A = ((2 * 0) + 600 + 600 + (2 * 900)) / 6
-shapley_B = ((2 * 0) + 600 + 0 + (2 * 300)) / 6
-shapley_C = ((2 * 0) + 600 + 0 + (2 * 300)) / 6
-
-shapley = [shapley_A, shapley_B, shapley_C]
-
-let 
-  model, x = core(players, payoff)
-  print(model)
-end
-
-shapley_feasible(players, payoff, shapley)
-
-max_playerwise(model, x)
-
-max_unfairness(players, payoff, shapley)
 
 
