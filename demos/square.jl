@@ -7,7 +7,7 @@ model = Model(Ipopt.Optimizer)
 @variable(model, 1 >= x >= 0)
 @variable(model, 1 >= y >= 0)
 
-@constraint(model, y + x == 1)
+# @constraint(model, y + x == 1)
 
 @objective(model, Max, x^2 + y^2)
 

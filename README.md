@@ -17,6 +17,21 @@ With this limitation in mind, we do not expect to always be able to reduce the c
 
 ## How to Run
 
-This section will be updated as more code is added to this project.
+To run this code, please first install Julia at: https://julialang.org/downloads/.
+
+To open this project and download all of the required dependencies, run the following:
+
+```julia
+] activate `path to local repo`
+instantiate
+```
+
+You may then run any of the included `demos` files included by running:
+
+```julia
+include("demos/`path to demo`")
+```
+
+
 
 
