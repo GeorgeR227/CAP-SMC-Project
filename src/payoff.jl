@@ -65,27 +65,3 @@ function print_payoffs(power_set, conversion_rates::Dict{Int,Int})
     end
     payOffs
 end
-
-# Main function to run the program
-function main()
-
-    #Establishes Provinces
-    provA = Province("A", 700)
-    provB = Province("B",400)
-    provC = Province("C", 400)
-
-    Country = [provA, provB, provC]
-
-    #Establishes Conversion Rates Dict
-    ConversionRates = Dict{Int64, Int64}(900 => 600, 1500 => 900, 2000 => 1500)
-
-    # Generate the power set of provinces
-    coalitions = powerset(Country)
-    
-
-    # Print the payoffs
-    print_payoffs(coalitions, ConversionRates)
-end
-
-# Call the main function
-main()
