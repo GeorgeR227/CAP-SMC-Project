@@ -2,12 +2,21 @@ using CAP_SMC_Project
 using Combinatorics
 
 # TODO: Calculate Shapley from payoff
-players = [:A, :B, :C]
-n_players = length(players)
-coalitions = combinations(players)
-values = [0,0,0, 600, 600, 0, 900]
 
-payoff = load_payoffs(coalitions, values)
+#Establishes Provinces
+provA = Province("A", 700)
+provB = Province("B",400)
+provC = Province("C", 400)
+
+Country = [provA, provB, provC]
+
+#Establishes Conversion Rates Dict
+ConversionRates = Dict{Int64, Int64}(900 => 600, 1500 => 900, 2000 => 1500)
+
+# Generate the power set of provinces
+coalitions = powerset(Country)
+
+payoff = print_payoffs(coalitions, ConversionRates)
 
 shapley_A = ((2 * 0) + 600 + 600 + (2 * 900)) / 6
 shapley_B = ((2 * 0) + 600 + 0 + (2 * 300)) / 6
