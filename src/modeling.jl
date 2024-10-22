@@ -6,17 +6,22 @@ using Random
 
 export core, load_payoffs, max_unfairness, max_playerwise, shapley_feasible
 
-function core(players, payoff; shift = zeros(length(players)), solver = Ipopt.Optimizer)
+function core(players, payoff; shift = zeros(length(players)), solver = Ipopt.Optimizer, start_values = nothing)
 
   model = Model(solver)
 
   n_players = length(players)
-  @variable(model, x[1:n_players])
+  x = @variable(model, x[1:n_players])
+  if !isnothing(start_values)
+    set_start_value.(x, start_values)
+  end
   player_map = Dict(zip(players, 1:n_players))
 
-  for coalition in combinations(players)
-    coalition_players = map(x -> player_map[x], coalition)
-    @constraint(model, sum(x[coalition_players]) >= payoff[coalition] - sum(shift[coalition_players]))
+  for i in 1:(n_players-1)
+    for coalition in combinations(players, i)
+      coalition_players = map(x -> player_map[x], coalition)
+      @constraint(model, sum(x[coalition_players]) >= payoff[coalition] - sum(shift[coalition_players]))
+    end
   end
 
   @constraint(model, sum(x[1:n_players]) == payoff[players] - sum(shift))
@@ -32,8 +37,12 @@ function load_payoffs(coalitions, values)
   payoff
 end
 
-function max_unfairness(players, payoff, shapley)
-  model, x = core(players, payoff; shift = shapley)
+function max_unfairness(players, payoff, shapley; start_values = nothing)
+  if !isnothing(start_values)
+    start_values = start_values .- shapley
+  end
+
+  model, x = core(players, payoff; shift = shapley, start_values = start_values)
   n_players = length(x)
 
   @objective(model, Max, sum(x[1:n_players].^2))
