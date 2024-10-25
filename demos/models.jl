@@ -6,11 +6,6 @@ using Combinatorics
 #Establishes Provinces
 players = ["A", "B", "C"]
 
-# provA = Province("A", 700)
-# provB = Province("B",400)
-# provC = Province("C", 400)
-# Country = [provA, provB, provC]
-
 total_budget = 1500.0
 
 #Establishes Conversion Rates Dict
@@ -24,7 +19,7 @@ coalitions = powerset(calculate_budgets(players, total_budget))
 payoff = create_payoffs(coalitions, ConversionRates)
 println(payoff)
 
-shapley = format_shapley_values(calculate_shapely(payoff))
+shapley = shapley_point(payoff)
 
 let
   model, x = core(players, payoff)
