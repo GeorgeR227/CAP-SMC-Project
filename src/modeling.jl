@@ -58,6 +58,28 @@ function max_unfairness(players, payoff, shapley; start_values = nothing)
   println("Distance to farthest point from Shapley: $(sqrt(objective_value(model)))")
 end
 
+function max_fairness(players, payoff, shapley; start_values = nothing)
+  if !isnothing(start_values)
+    start_values = start_values .- shapley
+  end
+
+  model, x = core(players, payoff; shift = shapley, start_values = start_values)
+  n_players = length(x)
+
+  @objective(model, Min, sum(x[1:n_players].^2))
+
+  Random.seed!(1337)
+  optimize!(model);
+  
+  @assert is_solved_and_feasible(model)
+  # println(solution_summary(model; verbose = true))
+
+  println("Shapley outcome was: $(shapley)")
+  println("Unfair outcome was: $(value.(x) .+ shapley)")
+  println("Distance to farthest point from Shapley: $(sqrt(objective_value(model)))")
+end
+
+
 function max_playerwise(players, payoff)
   model, x = core(players, payoff)
   n_players = length(x)
