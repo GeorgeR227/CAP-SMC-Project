@@ -51,6 +51,6 @@ print(model)
 
 optimize!(model)
 
-println("Furthest distance is: $(sqrt(objective_value(model)))")
+println("Closest distance is: $(sqrt(objective_value(model)))")
 
 println("X: $(value(x)), Y: $(value(y))")

@@ -4,7 +4,7 @@ using Ipopt
 using Combinatorics
 using Random
 
-export core, load_payoffs, max_unfairness, max_playerwise, shapley_feasible
+export core, load_payoffs, max_unfairness, max_fairness, max_playerwise, shapley_feasible
 
 function core(players, payoff; shift = zeros(length(players)), solver = Ipopt.Optimizer, start_values = nothing)
 
@@ -47,7 +47,6 @@ function max_unfairness(players, payoff, shapley; start_values = nothing)
 
   @objective(model, Max, sum(x[1:n_players].^2))
 
-  Random.seed!(1337)
   optimize!(model);
   
   @assert is_solved_and_feasible(model)
@@ -68,15 +67,14 @@ function max_fairness(players, payoff, shapley; start_values = nothing)
 
   @objective(model, Min, sum(x[1:n_players].^2))
 
-  Random.seed!(1337)
   optimize!(model);
   
   @assert is_solved_and_feasible(model)
   # println(solution_summary(model; verbose = true))
 
   println("Shapley outcome was: $(shapley)")
-  println("Unfair outcome was: $(value.(x) .+ shapley)")
-  println("Distance to farthest point from Shapley: $(sqrt(objective_value(model)))")
+  println("Fair outcome was: $(value.(x) .+ shapley)")
+  println("Distance to closest point from Shapley: $(sqrt(objective_value(model)))")
 end
 
 
@@ -87,7 +85,6 @@ function max_playerwise(players, payoff)
   for player_id in 1:n_players
     @objective(model, Max, x[player_id])
 
-    Random.seed!(1337)
     optimize!(model)
 
     @assert is_solved_and_feasible(model)
@@ -103,7 +100,6 @@ function shapley_feasible(players, payoff, shapley)
   shapley_point = Dict(zip(x, shapley))
 
 
-  Random.seed!(1337)
   feasible = isempty(primal_feasibility_report(model, shapley_point))
 
   println("Shapley outcome was: $(shapley)")
