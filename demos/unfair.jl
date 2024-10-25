@@ -5,7 +5,7 @@ players = [:A, :B]
 
 payoff = Dict(zip(powerset(players), [0, 5, 5, 20]))
 
-shapley = [10.0, 10.0]
+shapley = shapley_point(payoff)
 
 let
   model, x = core(players, payoff)
