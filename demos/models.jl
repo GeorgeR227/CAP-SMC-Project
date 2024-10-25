@@ -39,3 +39,5 @@ shapley_feasible(players, payoff, shapley)
 max_playerwise(players, payoff)
 
 max_unfairness(players, payoff, shapley)
+
+max_fairness(players, payoff, shapley)
