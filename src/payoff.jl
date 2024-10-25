@@ -1,11 +1,38 @@
 using Combinatorics
 
-export Province, create_payoffs
+export Province, create_payoffs, calculate_budgets
 
 # Province struct
 struct Province
     name::String
-    money::Int
+    money::Float64
+end
+
+# Budget function based on 1/x
+function budget_function(x::Int)
+    return 1.0 / x
+end
+
+# Function to calculate budgets and return a vector of Province structs
+function calculate_budgets(players::Vector{String}, total_resources::Float64 = 100.0; budget_func = budget_function)
+    num_provinces = length(players)
+    raw_budgets = Vector{Float64}(undef, num_provinces)
+    total_raw_budget = 0.0
+
+    # Calculate budgets based on 1/x and sum them
+    for i in 1:num_provinces
+        raw_budgets[i] = budget_func(i)
+        total_raw_budget += raw_budgets[i]
+    end
+
+    country = Vector{Province}(undef, num_provinces)
+
+    for i in 1:num_provinces
+        normalized_budget = (raw_budgets[i] / total_raw_budget) * total_resources
+        country[i] = Province(players[i], normalized_budget) 
+    end
+
+    return country
 end
 
 # Function to print payoffs based on conversion rates
