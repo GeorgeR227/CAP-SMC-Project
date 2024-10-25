@@ -1,66 +1,55 @@
 using Combinatorics
 
-export calculate_shapely
+export calculate_shapely, format_shapley_values
 
-function get_crate_size(value, conversion_rates)
-    best_match = 0
-    best_fit_crate = 0
-    for (threshold, crate) in conversion_rates
-        if threshold <= value && threshold > best_match
-            best_match = threshold
-            best_fit_crate = crate
-        end
+# Function to calculate the Shapley values based on the provided coalition structure and payoffs
+function calculate_shapely(coalition_payoffs::Dict{Any, Any})
+    players = Set{String}()
+    for (coalition, _) in coalition_payoffs
+        players = union(players, Set(coalition))  
     end
-    return best_fit_crate
-end
 
-# ONLY CONSIDERS GRAND COALITION 
-function calculate_shapely(country::Vector{Province}, conversion_rates::Dict{Int,Int})
+    player_list = collect(players)
+
+    # Initialize Shapley values for each player
     shapley_values = Dict{String, Float64}()
-
-    n = length(country)
-
-    for province in country
-        shapley_values[province.name] = 0.0
+    for player in player_list
+        shapley_values[player] = 0.0
     end
 
-    for perm in permutations(country)
+    n = length(player_list)
+
+    # Iterate over all permutations of players
+    for perm in permutations(player_list)
         current_value = 0
-
-        for (i, province) in enumerate(perm)
-            marginal_contribution = get_crate_size((province.money + current_value), conversion_rates) - get_crate_size(current_value, conversion_rates)   
+        current_coalition = []
 
 
-            shapley_values[province.name] += marginal_contribution
+        for (i, player) in enumerate(perm)
+            prev_coalition_sorted = sort(current_coalition)  # Ensure consistent order
+            prev_value = get(coalition_payoffs, prev_coalition_sorted, 0)
 
-            current_value += province.money
+            push!(current_coalition, player)
+
+            current_coalition_sorted = sort(current_coalition)
+            current_value = get(coalition_payoffs, current_coalition_sorted, 0)
+
+            marginal_contribution = current_value - prev_value
+            shapley_values[player] += marginal_contribution
         end
     end
 
-    for province in country
-        shapley_values[province.name] = shapley_values[province.name] / factorial(n)
+    for player in player_list
+        shapley_values[player] = shapley_values[player] / factorial(n)
     end
 
     return shapley_values
-end 
-
-function main()
-    # Establishes Provinces
-    provA = Province("A", 700)
-    provB = Province("B", 400)
-    provC = Province("C", 400)
-    Country = [provA, provB, provC]
-
-    # Establishes Conversion Rates Dict
-    ConversionRates = Dict{Int64, Int64}(900 => 600, 1500 => 900, 2000 => 1500)
-
-    # Calculate Shapley values and sort them by name
-    shapley_values = calculate_shapely(Country, ConversionRates)
-
-    # Print the sorted Shapley values
-    for (name, value) in shapley_values
-        println("Province $name Shapley value = $value")
-    end
 end
 
-main()
+# Gives Shapley values in a way that George's fucntions accept.
+# I didn't chnage the way my funciton returns them because I think it's something we should discuss as a gorup
+function format_shapley_values(shapley_values::Dict{String, Float64})
+    player_list = sort(collect(keys(shapley_values)))
+    formatted_shapley = [shapley_values[player] for player in player_list]
+    return formatted_shapley
+end
