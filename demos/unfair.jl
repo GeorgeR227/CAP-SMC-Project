@@ -17,3 +17,5 @@ shapley_feasible(players, payoff, shapley)
 max_playerwise(players, payoff)
 
 max_unfairness(players, payoff, shapley; start_values = [10 + 0.0001, 10 - 0.0001])
+
+max_fairness(players, payoff, shapley)
