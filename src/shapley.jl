@@ -1,44 +1,27 @@
 using Combinatorics
 
-export calculate_shapely, format_shapley_values, shapley_point
+export calculate_shapely, format_shapley_values, shapley_point, run_shapley_round!
 
 shapley_point(payoffs::Dict) = format_shapley_values(calculate_shapely(payoffs))
 
 # Function to calculate the Shapley values based on the provided coalition structure and payoffs
-function calculate_shapely(coalition_payoffs::Dict)
+function calculate_shapely(payoffs::Dict)
     players = Set()
-    for (coalition, _) in coalition_payoffs
-        players = union(players, Set(coalition))  
+    for (coalition, _) in payoffs
+        players = union(players, Set(coalition))
     end
 
     player_list = collect(players)
+    nplayers = length(players)
 
     # Initialize Shapley values for each player
-    shapley_values = Dict()
-    for player in player_list
-        shapley_values[player] = 0.0
-    end
+    shapley_values = Dict(zip(players, zeros(nplayers)))
 
     n = length(player_list)
 
     # Iterate over all permutations of players
     for perm in permutations(player_list)
-        current_value = 0
-        current_coalition = []
-
-
-        for (i, player) in enumerate(perm)
-            prev_coalition_sorted = sort(current_coalition)  # Ensure consistent order
-            prev_value = get(coalition_payoffs, prev_coalition_sorted, 0)
-
-            push!(current_coalition, player)
-
-            current_coalition_sorted = sort(current_coalition)
-            current_value = get(coalition_payoffs, current_coalition_sorted, 0)
-
-            marginal_contribution = current_value - prev_value
-            shapley_values[player] += marginal_contribution
-        end
+      run_shapley_round!(shapley_values, payoffs, perm)
     end
 
     for player in player_list
@@ -47,6 +30,23 @@ function calculate_shapely(coalition_payoffs::Dict)
 
     return shapley_values
 end
+
+function run_shapley_round!(shapley_values, payoffs, perm)
+  coalition = []
+
+  for player in perm
+    prev_value = get(payoffs, coalition, 0)
+
+    sort!(push!(coalition, player))
+
+    current_value = get(payoffs, coalition, 0)
+
+    shapley_values[player] += current_value - prev_value
+  end
+
+  shapley_values
+end
+
 
 # Gives Shapley values as a vector instead of a dictionary
 # TODO: Decide how to format the Shapley point, either as a vector with players implied or as a dictionary

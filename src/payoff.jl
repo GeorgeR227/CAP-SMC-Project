@@ -1,10 +1,10 @@
 using Combinatorics
 
-export Province, create_payoffs, calculate_budgets
+export Province, create_payoffs, calculate_budgets, auto_generate_playertags
 
 # Province struct
 struct Province
-    name::String
+    name
     money::Float64
 end
 
@@ -13,8 +13,15 @@ function budget_function(x::Int)
     return 1.0 / x
 end
 
+function auto_generate_playertags(n::Int)
+  @assert n > 0
+
+  return ["P_$i" for i in 1:n]
+end
+
+
 # Function to calculate budgets and return a vector of Province structs
-function calculate_budgets(players::Vector{String}, total_resources::Float64 = 100.0; budget_func = budget_function)
+function calculate_budgets(players, total_resources::Float64 = 100.0; budget_func = budget_function)
     num_provinces = length(players)
     raw_budgets = Vector{Float64}(undef, num_provinces)
     total_raw_budget = 0.0
@@ -29,7 +36,7 @@ function calculate_budgets(players::Vector{String}, total_resources::Float64 = 1
 
     for i in 1:num_provinces
         normalized_budget = (raw_budgets[i] / total_raw_budget) * total_resources
-        country[i] = Province(players[i], normalized_budget) 
+        country[i] = Province(players[i], normalized_budget)
     end
 
     return country
@@ -43,7 +50,7 @@ function create_payoffs(power_set, conversion_rates::Dict{Int,Int})
             continue;
         end
         val_sum = 0
-        name_list = String[]
+        name_list = []
 
         for prov in set
             val_sum += prov.money
