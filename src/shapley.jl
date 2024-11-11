@@ -34,14 +34,15 @@ end
 function run_shapley_round!(shapley_values, payoffs, perm)
   coalition = []
 
+  val = 0
+  next_val = 0
+
   for player in perm
-    prev_value = get(payoffs, coalition, 0)
+    coalition = sort(push!(coalition, player))
+    next_val = get(payoffs, coalition, 0)
 
-    sort!(push!(coalition, player))
-
-    current_value = get(payoffs, coalition, 0)
-
-    shapley_values[player] += current_value - prev_value
+    shapley_values[player] += next_val - val
+    val = next_val
   end
 
   shapley_values

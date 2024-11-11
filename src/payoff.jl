@@ -16,7 +16,7 @@ end
 function auto_generate_playertags(n::Int)
   @assert n > 0
 
-  return ["P_$i" for i in 1:n]
+  return sort(["P_$i" for i in 1:n])
 end
 
 
