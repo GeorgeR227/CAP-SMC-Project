@@ -1,6 +1,6 @@
 using Combinatorics
 
-export Province, create_payoffs, calculate_budgets, auto_generate_playertags
+export Province, create_payoffs, calculate_budgets, auto_generate_playertags, set_conversions
 
 # Province struct
 struct Province
@@ -96,4 +96,19 @@ function create_payoffs(power_set, conversion_rates::Dict{Int,Int})
         push!(payOffs, name_list => best_fit_crate)
     end
     payOffs
+end
+
+# Sets conversion rates
+function set_conversions(numTimes::Int = 3)
+    startingPrice = 20;
+
+    conversionRates = Dict()
+
+    for x in 1:numTimes
+        currentPrice = startingPrice + 5*x
+        crateNum = (currentPrice)^2
+        conversionRates[currentPrice*10] = crateNum
+    end
+
+    conversionRates
 end

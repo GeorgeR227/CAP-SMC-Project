@@ -3,24 +3,28 @@ using Combinatorics
 using LinearAlgebra
 
 #Establishes Provinces
-players = auto_generate_playertags(3)
+players = 
+provA = Province("A", 700)
+provB = Province("B",400)
+provC = Province("C", 400)
 
-total_budget = 1500.0
+#Establishes Prov names
+players = auto_generate_playertags(3)
+Country = [provA, provB, provC]
 
 #Establishes Conversion Rates Dict
-ConversionRates = calculate_budgets(3)
-
-prov_budgets = calculate_budgets(players, total_budget)
-
-println(prov_budgets)
+ConversionRates = set_conversions(4)
 
 # Generate the power set of provinces
-coalitions = powerset(prov_budgets)
+coalitions = powerset(Country)
 
 payoff = create_payoffs(coalitions, ConversionRates)
-println(payoff)
 
-shapley = shapley_point(payoff)
+shapley_A = ((2 * 0) + 600 + 600 + (2 * 900)) / 6
+shapley_B = ((2 * 0) + 600 + 0 + (2 * 300)) / 6
+shapley_C = ((2 * 0) + 600 + 0 + (2 * 300)) / 6
+
+shapley = [shapley_A, shapley_B, shapley_C]
 
 mc_shapley = monte_carlo_shapley_point(players, payoff, 600)
 
