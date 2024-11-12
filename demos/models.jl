@@ -8,7 +8,7 @@ players = auto_generate_playertags(3)
 total_budget = 1500.0
 
 #Establishes Conversion Rates Dict
-ConversionRates = Dict{Int64, Int64}(900 => 600, 1500 => 900, 2000 => 1500)
+ConversionRates = calculate_budgets(3)
 
 prov_budgets = calculate_budgets(players, total_budget)
 

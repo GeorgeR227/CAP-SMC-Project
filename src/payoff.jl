@@ -23,6 +23,21 @@ function auto_generate_playertags(n)
   return sort(["P_$(name...)" for (name, _) in zip(name_gen, 1:n)])
 end
 
+# Sets conversion rates
+function set_conversions(numTimes::Int)
+    startingPrice = 20;
+
+    conversionRates = Dict()
+
+    for x in 1:numTimes
+        currentPrice = startingPrice + 5*x
+        crateNum = (currentPrice)^2
+        conversionRates[currentPrice*100] = crateNum
+    end
+
+    conversionRates
+end
+
 # Function to calculate budgets and return a vector of Province structs
 function calculate_budgets(players, total_resources::Float64 = 100.0; budget_func = budget_function)
     num_provinces = length(players)
