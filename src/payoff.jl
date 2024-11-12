@@ -16,9 +16,12 @@ end
 function auto_generate_playertags(n::Int)
   @assert n > 0
 
-  return sort(["P_$i" for i in 1:n])
-end
+  pow = ceil(Int64, log2(n)/log2(26))
 
+  name_gen = Iterators.product(fill('A':'Z', pow)...)
+
+  return sort(["P_$(name...)" for (name, _) in zip(name_gen, 1:n)])
+end
 
 # Function to calculate budgets and return a vector of Province structs
 function calculate_budgets(players, total_resources::Float64 = 100.0; budget_func = budget_function)

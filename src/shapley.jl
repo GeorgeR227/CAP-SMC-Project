@@ -1,8 +1,28 @@
 using Combinatorics
 
-export calculate_shapely, format_shapley_values, shapley_point, run_shapley_round!
+export calculate_shapely, format_shapley_values, shapley_point, monte_carlo_shapley_point
 
 shapley_point(payoffs::Dict) = format_shapley_values(calculate_shapely(payoffs))
+
+function monte_carlo_shapley_point(players, payoff::Dict, max::Real; p = 0.95, t = 1, rng = Xoshiro(1337))
+  nplayers = length(players)
+
+  # Calculated using a Hoeffding bound
+  trials = ceil(Int64, max^2 * nplayers * log(2 / (1 - 0.95^(1/nplayers))) / (2 * t^2))
+  
+  println("Running Monte Carlo with $trials trials...")
+
+  shapley_values = Dict(zip(players, zeros(length(players))))
+
+  for i in 1:trials
+    if i % 500_000 == 0
+      println("On trial $i...")
+    end
+    run_shapley_round!(shapley_values, payoff, players[randperm(rng, nplayers)])
+  end
+
+  return [(shapley_values[player] / trials) for player in players]
+end
 
 # Function to calculate the Shapley values based on the provided coalition structure and payoffs
 function calculate_shapely(payoffs::Dict)

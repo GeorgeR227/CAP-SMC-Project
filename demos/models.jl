@@ -21,6 +21,11 @@ println(payoff)
 
 shapley = shapley_point(payoff)
 
+mc_shapley = monte_carlo_shapley_point(players, payoff, 900)
+
+@assert norm(shapley - mc_shapley) < 1
+@assert sum(mc_shapley) == payoff[players]
+
 let
   model, x = core(players, payoff)
   print(model)
