@@ -28,3 +28,4 @@ mc_shapley = monte_carlo_shapley_point(players, payoff, maxval)
 shapley = fill(pred_shapley, nplayers)
 
 @assert norm(shapley .- mc_shapley) < 1
+println("Difference in known Shapley vs Monte Carlo Shapley is $(norm(shapley .- mc_shapley))")
