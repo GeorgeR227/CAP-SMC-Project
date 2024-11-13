@@ -1,5 +1,6 @@
 using CAP_SMC_Project
 using Combinatorics
+using LinearAlgebra
 
 #Establishes Provinces
 players = auto_generate_playertags(3)
@@ -21,7 +22,7 @@ println(payoff)
 
 shapley = shapley_point(payoff)
 
-mc_shapley = monte_carlo_shapley_point(players, payoff, 900)
+mc_shapley = monte_carlo_shapley_point(players, payoff, 600)
 
 @assert norm(shapley - mc_shapley) < 1
 @assert sum(mc_shapley) == payoff[players]
