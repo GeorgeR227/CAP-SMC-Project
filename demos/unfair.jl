@@ -1,7 +1,7 @@
 using CAP_SMC_Project
 using Combinatorics
 
-players = [:A, :B]
+players = auto_generate_playertags(2)
 
 payoff = Dict(zip(powerset(players), [0, 5, 5, 20]))
 
@@ -18,4 +18,8 @@ max_playerwise(players, payoff)
 
 max_unfairness(players, payoff, shapley; start_values = [10 + 0.0001, 10 - 0.0001])
 
-max_fairness(players, payoff, shapley)
+fair_point = max_fairness(players, payoff, shapley)
+
+equal_point = strongly_egalitarian_core(players, payoff)
+
+println("Distance between the fair point and the equal point is $(norm(fair_point .- equal_point)).")
