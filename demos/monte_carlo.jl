@@ -7,7 +7,7 @@ using Plots
 nplayers = 12
 players = auto_generate_playertags(nplayers)
 
-println("There are $(factorial(12)) difference combinations")
+println("There are $(factorial(12)) different permutations for $(nplayers) players")
 
 a = 10
 b = 5
@@ -19,7 +19,7 @@ for coalition in powerset(players)
 end
 
 pred_shapley = a + b * length(players)
-println("Predicated Shapley for all should be $(pred_shapley)")
+println("Predicted Shapley for all should be $(pred_shapley)")
 
 maxval = a * nplayers + b
 

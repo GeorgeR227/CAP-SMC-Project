@@ -13,7 +13,7 @@ function budget_function(x::Int)
     return 1.0 / x
 end
 
-function auto_generate_playertags(n::Int)
+function auto_generate_playertags(n)
   @assert n > 0
 
   pow = ceil(Int64, log2(n)/log2(26))

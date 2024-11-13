@@ -4,7 +4,7 @@ using Ipopt
 using Combinatorics
 using Random
 
-export core, load_payoffs, max_unfairness, max_fairness, max_playerwise, shapley_feasible
+export core, load_payoffs, max_unfairness, max_fairness, max_playerwise, shapley_feasible, strongly_egalitarian_core
 
 function core(players, payoff; shift = zeros(length(players)), solver = Ipopt.Optimizer, start_values = nothing)
 
@@ -45,7 +45,7 @@ function max_unfairness(players, payoff, shapley; start_values = nothing)
   model, x = core(players, payoff; shift = shapley, start_values = start_values)
   n_players = length(x)
 
-  @objective(model, Max, sum(x[1:n_players].^2))
+  @objective(model, Max, sum(x.^2))
 
   optimize!(model);
   
@@ -55,6 +55,8 @@ function max_unfairness(players, payoff, shapley; start_values = nothing)
   println("Shapley outcome was: $(shapley)")
   println("Unfair outcome was: $(value.(x) .+ shapley)")
   println("Distance to farthest point from Shapley: $(sqrt(objective_value(model)))")
+
+  value.(x) .+ shapley
 end
 
 function max_fairness(players, payoff, shapley; start_values = nothing)
@@ -65,7 +67,7 @@ function max_fairness(players, payoff, shapley; start_values = nothing)
   model, x = core(players, payoff; shift = shapley, start_values = start_values)
   n_players = length(x)
 
-  @objective(model, Min, sum(x[1:n_players].^2))
+  @objective(model, Min, sum(x.^2))
 
   optimize!(model);
   
@@ -75,6 +77,8 @@ function max_fairness(players, payoff, shapley; start_values = nothing)
   println("Shapley outcome was: $(shapley)")
   println("Fair outcome was: $(value.(x) .+ shapley)")
   println("Distance to closest point from Shapley: $(sqrt(objective_value(model)))")
+
+  value.(x) .+ shapley
 end
 
 
@@ -106,4 +110,17 @@ function shapley_feasible(players, payoff, shapley)
   println("Is Shapley in the core: $(feasible)")
 end
 
+function strongly_egalitarian_core(players, payoff)
+  model, x = core(players, payoff)
+  n_players = length(x)
 
+  @objective(model, Min, sum(x.^2))
+
+  optimize!(model)
+
+  @assert is_solved_and_feasible(model)
+
+  println("The strongly egalitarian core is the point: $(value.(x))")
+  
+  value.(x)
+end

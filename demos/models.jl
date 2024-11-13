@@ -38,4 +38,8 @@ max_playerwise(players, payoff)
 
 max_unfairness(players, payoff, shapley)
 
-max_fairness(players, payoff, shapley)
+fair_point = max_fairness(players, payoff, shapley);
+
+equal_point = strongly_egalitarian_core(players, payoff);
+
+println("Distance between the fair point and the equal point is $(norm(fair_point .- equal_point)).")
