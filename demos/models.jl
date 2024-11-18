@@ -4,25 +4,24 @@ using LinearAlgebra
 
 #Establishes Provinces
 players = auto_generate_playertags(3)
+provA = Province(players[1], 700)
+provB = Province(players[2], 400)
+provC = Province(players[3], 400)
 
-total_budget = 1500.0
+#Establishes Prov names
+Country = [provA, provB, provC]
 
 #Establishes Conversion Rates Dict
-ConversionRates = Dict{Int64, Int64}(900 => 600, 1500 => 900, 2000 => 1500)
-
-prov_budgets = calculate_budgets(players, total_budget)
-
-println(prov_budgets)
+ConversionRates = set_conversions(ntimes = 4, starting_price = 200)
 
 # Generate the power set of provinces
-coalitions = powerset(prov_budgets)
+coalitions = powerset(Country)
 
 payoff = create_payoffs(coalitions, ConversionRates)
-println(payoff)
 
 shapley = shapley_point(payoff)
 
-mc_shapley = monte_carlo_shapley_point(players, payoff, 600)
+mc_shapley = monte_carlo_shapley_point(players, payoff, 490)
 
 @assert norm(shapley - mc_shapley) < 1
 @assert sum(mc_shapley) == payoff[players]

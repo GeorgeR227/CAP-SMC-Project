@@ -1,6 +1,6 @@
 using Combinatorics
 
-export Province, create_payoffs, calculate_budgets, auto_generate_playertags
+export Province, create_payoffs, calculate_budgets, auto_generate_playertags, set_conversions
 
 # Province struct
 struct Province
@@ -21,6 +21,20 @@ function auto_generate_playertags(n)
   name_gen = Iterators.product(fill('A':'Z', pow)...)
 
   return sort(["P_$(name...)" for (name, _) in zip(name_gen, 1:n)])
+end
+
+# Sets conversion rates
+function set_conversions(; ntimes::Int64 = 3, starting_price = 20, scaling_price = 500)
+    
+    conversion_rates = Dict{Int64, Float64}()
+
+    for x in 1:ntimes
+        currentPrice = starting_price + scaling_price * x
+        crateNum = ceil((currentPrice)^2 / 1_000)
+        conversion_rates[currentPrice] = crateNum
+    end
+
+    conversion_rates
 end
 
 # Function to calculate budgets and return a vector of Province structs
@@ -46,7 +60,7 @@ function calculate_budgets(players, total_resources::Float64 = 100.0; budget_fun
 end
 
 # Function to print payoffs based on conversion rates
-function create_payoffs(power_set, conversion_rates::Dict{Int,Int})
+function create_payoffs(power_set, conversion_rates)
     payOffs = Dict()
     for set in power_set
         if isempty(set)
