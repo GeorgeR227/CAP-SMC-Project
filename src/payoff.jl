@@ -24,18 +24,17 @@ function auto_generate_playertags(n)
 end
 
 # Sets conversion rates
-function set_conversions(numTimes::Int)
-    startingPrice = 20;
+function set_conversions(; ntimes::Int64 = 3, starting_price = 20, scaling_price = 500)
+    
+    conversion_rates = Dict{Int64, Float64}()
 
-    conversionRates = Dict()
-
-    for x in 1:numTimes
-        currentPrice = startingPrice + 5*x
-        crateNum = (currentPrice)^2
-        conversionRates[currentPrice*100] = crateNum
+    for x in 1:ntimes
+        currentPrice = starting_price + scaling_price * x
+        crateNum = ceil((currentPrice)^2 / 1_000)
+        conversion_rates[currentPrice] = crateNum
     end
 
-    conversionRates
+    conversion_rates
 end
 
 # Function to calculate budgets and return a vector of Province structs
@@ -61,7 +60,7 @@ function calculate_budgets(players, total_resources::Float64 = 100.0; budget_fun
 end
 
 # Function to print payoffs based on conversion rates
-function create_payoffs(power_set, conversion_rates::Dict{Int,Int})
+function create_payoffs(power_set, conversion_rates)
     payOffs = Dict()
     for set in power_set
         if isempty(set)
@@ -96,19 +95,4 @@ function create_payoffs(power_set, conversion_rates::Dict{Int,Int})
         push!(payOffs, name_list => best_fit_crate)
     end
     payOffs
-end
-
-# Sets conversion rates
-function set_conversions(numTimes::Int = 3)
-    startingPrice = 20;
-
-    conversionRates = Dict()
-
-    for x in 1:numTimes
-        currentPrice = startingPrice + 5*x
-        crateNum = (currentPrice)^2
-        conversionRates[currentPrice*10] = crateNum
-    end
-
-    conversionRates
 end
