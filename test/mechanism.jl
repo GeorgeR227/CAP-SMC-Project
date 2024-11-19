@@ -1,8 +1,6 @@
 using Test
 using CAP_SMC_Project
 
-sort_by_name(country) = sort(country; by = x -> x.name)
-
 function test_redistribution(country, budget, tax_type, expected_money) 
   res = sort_by_name(redistribution(country, budget; tax_type = tax_type))
   for (idx, val) in enumerate(expected_money)

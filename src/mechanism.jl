@@ -1,6 +1,6 @@
 using Combinatorics
 
-export redistribution, benefit, penalty
+export redistribution, sort_by_name, benefit, penalty
 
 function redistribution(country, budget; tax_type = :flat)
 
