@@ -3,7 +3,7 @@ using Combinatorics
 export Province, create_payoffs, calculate_budgets, auto_generate_playertags, set_conversions
 
 # Province struct
-struct Province
+mutable struct Province
     name
     money::Float64
 end

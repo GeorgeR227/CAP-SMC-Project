@@ -9,13 +9,15 @@ provB = Province(players[2], 400)
 provC = Province(players[3], 400)
 
 #Establishes Prov names
-Country = [provA, provB, provC]
+country = [provA, provB, provC]
+
+country = redistribution(country, 300)
 
 #Establishes Conversion Rates Dict
 ConversionRates = set_conversions(ntimes = 4, starting_price = 200)
 
 # Generate the power set of provinces
-coalitions = powerset(Country)
+coalitions = powerset(country)
 
 payoff = create_payoffs(coalitions, ConversionRates)
 
