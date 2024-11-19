@@ -2,7 +2,6 @@ using LinearAlgebra
 using CAP_SMC_Project
 using Random
 using Combinatorics
-using Plots
 
 nplayers = 12
 players = auto_generate_playertags(nplayers)
