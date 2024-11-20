@@ -8,7 +8,7 @@ function monte_carlo_shapley_point(players, payoff::Dict, max::Real; p = 0.95, t
   nplayers = length(players)
 
   # Calculated using a Hoeffding bound
-  trials = ceil(Int64, max^2 * nplayers * log(2 / (1 - 0.95^(1/nplayers))) / (2 * t^2))
+  trials = ceil(Int64, max^2 * nplayers * log(2 / (1 - p^(1/nplayers))) / (2 * t^2))
   
   println("Running Monte Carlo with $trials trials...")
 
