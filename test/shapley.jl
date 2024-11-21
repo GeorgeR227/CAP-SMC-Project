@@ -1,4 +1,6 @@
 using Test
+using CAP_SMC_Project
+using Combinatorics
 
 @testset "Small Shapley" begin
   players = [:A, :B]
