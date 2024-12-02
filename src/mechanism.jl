@@ -17,6 +17,12 @@ function redistribution(country, budget; tax_type = :flat)
       push!(new_country, Province(prov.name, prov.money - tax))
       real_budget += tax
     end
+
+    if tax_type == :prop
+      tax = minimum([prov.money], ceil(prov.money / budget))
+      push!(new_country, Province(prov.name, prov.money - tax))
+      real_budget += tax
+    end
   end
   
   new_country = sort(new_country; by = x -> x.money)
