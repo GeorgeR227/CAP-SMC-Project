@@ -2,7 +2,7 @@ using Combinatorics
 
 export redistribution, sort_by_name, benefit, penalty
 
-function redistribution(country, budget; tax_type = :flat)
+function redistribution(country, budget; tax_type = :prop)
 
   @assert budget >= 0
 
@@ -19,7 +19,7 @@ function redistribution(country, budget; tax_type = :flat)
     end
 
     if tax_type == :prop
-      tax = minimum([prov.money], prov.money * ceil(prov.money / budget))
+      tax = minimum([prov.money, prov.money * ceil(prov.money / budget)])
       push!(new_country, Province(prov.name, prov.money - tax))
       real_budget += tax
     end
