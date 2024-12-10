@@ -77,4 +77,27 @@ function benefit(players, payoff, reward)
   payoff
 end
 
+function tax_non_grand_coalition(country; tax_rate = 0.05)
+  coalitions = collect(powerset(country))
+
+  grand_coalition = reduce((a, b) -> length(a) > length(b) ? a : b, coalitions)
+
+  grand_coalition_names = Set([prov.name for prov in grand_coalition])
+
+  taxed_country = []
+
+  for prov in country
+      # ∉ is symbol for "not in" one of the only clean ways to do this in julia 
+      if prov.name ∉ grand_coalition_names
+          tax = prov.money * tax_rate
+          remaining_money = prov.money - tax
+          push!(taxed_country, Province(prov.name, remaining_money))
+      else
+          push!(taxed_country, prov)
+      end
+  end
+
+  return taxed_country  
+end
+
 penalty(players, payoff, reward) = benefit(players, payoff, -reward)
