@@ -18,7 +18,7 @@ payoff = create_payoffs(coalitions, ConversionRates)
 og_shapley = shapley_point(payoff)
 
 # Generate the power set of provinces
-tax = (700 + 400 + 400) * 0.1
+tax = (700 + 400 + 400) * 0.05
 country = redistribution(country, tax)
 coalitions = powerset(country)
 
