@@ -8,22 +8,27 @@ function redistribution(country, budget; tax_type = :prop)
 
   nplayers = length(country)
   real_budget = 0
+  totalMoney = 0
+
+  for prov in country
+    totalMoney = totalMoney+prov.money
+  end
 
   new_country = []
 
-  for prov in country
-    if tax_type == :flat
-      tax = minimum([prov.money, ceil(budget / nplayers)])
-      push!(new_country, Province(prov.name, prov.money - tax))
-      real_budget += tax
-    end
+  totalMoney = sum(prov.money for prov in country)  
 
-    if tax_type == :prop
-      tax = minimum([prov.money, prov.money * ceil(prov.money / budget)])
-      push!(new_country, Province(prov.name, prov.money - tax))
-      real_budget += tax
+for prov in country
+    if tax_type == :flat
+        tax = min(prov.money, ceil(budget / nplayers))
+        push!(new_country, Province(prov.name, prov.money - tax))
+        real_budget += tax
+    else 
+        tax = min(prov.money, ceil(budget * (prov.money/totalMoney))) 
+        push!(new_country, Province(prov.name, prov.money - tax))
+        real_budget += tax
     end
-  end
+end
   
   new_country = sort(new_country; by = x -> x.money)
 
