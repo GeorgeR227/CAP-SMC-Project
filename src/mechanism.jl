@@ -1,6 +1,6 @@
 using Combinatorics
 
-export redistribution, sort_by_name, benefit, penalty
+export redistribution, sort_by_name, benefit, penalty, tax_non_grand_coalition
 
 function redistribution(country, budget; tax_type = :prop)
 
@@ -75,6 +75,29 @@ function benefit(players, payoff, reward)
   payoff[players] -= reward
 
   payoff
+end
+
+function tax_non_grand_coalition(country, grand_coalition, tax_rate)
+  coalitions = collect(powerset(country))
+  grand_coalition_names = Set([prov.name for prov in grand_coalition])
+  coalition_utilities = Dict()
+
+  for coalition in coalitions
+      if isempty(coalition)
+          continue
+      end
+      sorted_coalition = sort_by_name(coalition)
+      coalition_names = Set([prov.name for prov in coalition])
+      if coalition_names == grand_coalition_names
+          combined_budget = sum(prov.money for prov in coalition)
+          coalition_utilities[sorted_coalition] = combined_budget  
+      else
+          combined_budget = sum(prov.money for prov in coalition)
+          taxed_budget = combined_budget * (1 - tax_rate)
+          coalition_utilities[sorted_coalition] = taxed_budget  
+      end
+  end
+  return coalition_utilities
 end
 
 penalty(players, payoff, reward) = benefit(players, payoff, -reward)
