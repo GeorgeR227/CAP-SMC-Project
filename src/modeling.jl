@@ -4,8 +4,13 @@ using Ipopt
 using Combinatorics
 using Random
 
-export core, load_payoffs, max_unfairness, max_fairness, max_playerwise, shapley_feasible, strongly_egalitarian_core
+export core, max_unfairness, max_fairness, max_playerwise, shapley_feasible, strongly_egalitarian_core
 
+"""
+    core(players, payoff; shift = zeros(length(players)), solver = Ipopt.Optimizer, start_values = nothing)
+
+Generates a model in JuMP representing the core as a collection of linear inequalities.
+"""
 function core(players, payoff; shift = zeros(length(players)), solver = Ipopt.Optimizer, start_values = nothing)
 
   model = Model(solver)
@@ -30,13 +35,13 @@ function core(players, payoff; shift = zeros(length(players)), solver = Ipopt.Op
   (model, x)
 end
 
-function load_payoffs(coalitions, values)
-  payoff = Dict{Vector{Symbol}, Real}(zip(coalitions, values))
-  push!(payoff, Symbol[] => 0)
+"""
+    max_unfairness(players, payoff, shapley; start_values = nothing)
 
-  payoff
-end
-
+Attempts to discover the point of maximum unfairness as defined by the point furthest from the 
+Shapley and yet still in the core. Since this is maximizing a convex function over a convex set,
+essentially concave programming, this only returns a local maximum. 
+"""
 function max_unfairness(players, payoff, shapley; start_values = nothing)
   if !isnothing(start_values)
     start_values = start_values .- shapley
@@ -59,6 +64,12 @@ function max_unfairness(players, payoff, shapley; start_values = nothing)
   value.(x) .+ shapley
 end
 
+"""
+    max_fairness(players, payoff, shapley; start_values = nothing)
+
+Attempts to discover the point of maximum fairness as defined by the point closest from the 
+Shapley and yet still in the core. This is accomplished through convex programming.
+"""
 function max_fairness(players, payoff, shapley; start_values = nothing)
   if !isnothing(start_values)
     start_values = start_values .- shapley
@@ -82,6 +93,12 @@ function max_fairness(players, payoff, shapley; start_values = nothing)
 end
 
 
+"""
+    max_playerwise(players, payoff)
+
+Attempts to discover the outcome of maximum benefit, meaning the highest payoff, for a particular
+player with that outcome still in the core. This is accomplished through linear programming.
+"""
 function max_playerwise(players, payoff)
   model, x = core(players, payoff)
   n_players = length(x)
@@ -97,6 +114,11 @@ function max_playerwise(players, payoff)
   end
 end
 
+"""
+    shapley_feasible(players, payoff, shapley)
+
+Runs a feasibility check to determine if the Shapley point is located in the core.
+"""
 function shapley_feasible(players, payoff, shapley)
   model, x = core(players, payoff)
   n_players = length(x)
@@ -110,6 +132,13 @@ function shapley_feasible(players, payoff, shapley)
   println("Is Shapley in the core: $(feasible)")
 end
 
+"""
+    strongly_egalitarian_core(players, payoff)
+
+Finds the Strongly Egalitarian Core which is defined as the outcome of minimal Euclidean
+norm in the core. This generalizes the "equal" outcome where all players receive the same
+payoff.
+"""
 function strongly_egalitarian_core(players, payoff)
   model, x = core(players, payoff)
   n_players = length(x)

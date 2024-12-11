@@ -43,4 +43,4 @@ equal_point = strongly_egalitarian_core(players, payoff);
 
 println("Distance between the fair point and the equal point is $(norm(fair_point .- equal_point)).")
 
-println("Distance between the orignal Shapley and the new Shapley is $(norm(og_shapley .- shapley)).")
+println("Distance between the original Shapley and the new Shapley is $(norm(og_shapley .- shapley)).")

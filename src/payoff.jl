@@ -13,6 +13,11 @@ function budget_function(x::Int)
     return 1.0 / x
 end
 
+"""
+    auto_generate_playertags(n)
+
+Automatically generates unique players name for `n` players.
+"""
 function auto_generate_playertags(n)
   @assert n > 0
 
@@ -23,7 +28,11 @@ function auto_generate_playertags(n)
   return sort(["P_$(name...)" for (name, _) in zip(name_gen, 1:n)])
 end
 
-# Sets conversion rates
+"""
+    set_conversions(; ntimes::Int64 = 3, starting_price = 20, scaling_price = 500)
+
+Automatically generates a set of price to crate conversions.
+"""
 function set_conversions(; ntimes::Int64 = 3, starting_price = 20, scaling_price = 500)
     
     conversion_rates = Dict{Int64, Float64}()
@@ -37,7 +46,13 @@ function set_conversions(; ntimes::Int64 = 3, starting_price = 20, scaling_price
     conversion_rates
 end
 
-# Function to calculate budgets and return a vector of Province structs
+"""
+    calculate_budgets(players, total_resources::Float64 = 100.0; budget_func = budget_function)
+
+Automatically distributes a set amount of funds to all players based on a provided budgeting
+function. By default it is player id `i` receives a fraction `1/i` normalized to fit the total 
+budget. This is meant as an initialization step and not as a mechanism.
+"""
 function calculate_budgets(players, total_resources::Float64 = 100.0; budget_func = budget_function)
     num_provinces = length(players)
     raw_budgets = Vector{Float64}(undef, num_provinces)
@@ -59,7 +74,13 @@ function calculate_budgets(players, total_resources::Float64 = 100.0; budget_fun
     return country
 end
 
-# Function to print payoffs based on conversion rates
+"""
+    create_payoffs(power_set, conversion_rates)
+
+Creates the payoff dictionary based on the set of all coalitions as well as the given
+economy of conversion rates. For simplicity, we assume that each coalition can only
+purchase a single set of crates and that the utility of each crate increases as more are included.
+"""
 function create_payoffs(power_set, conversion_rates)
     payOffs = Dict()
     for set in power_set
