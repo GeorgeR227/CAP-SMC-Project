@@ -8,11 +8,11 @@ function test_redistribution(country, budget, tax_type, expected_money)
   end
 end
 
-function test_tax_non_grand_coalition(country, grand_coalition, expected_money)
-  res = sort_by_name(tax_non_grand_coalition(country, grand_coalition))
-
-  for (idx, val) in enumerate(expected_money)
-      @test res[idx].name == country[idx].name && res[idx].money == expected_money[idx]
+function test_tax_non_grand_coalition_utilities(country, grand_coalition, tax_rate, expected_utilities)
+  computed_utilities = tax_non_grand_coalition(country, grand_coalition, tax_rate)
+  for (coalition, expected_utility) in expected_utilities
+      sorted_coalition = sort_by_name(coalition)
+      @test computed_utilities[sorted_coalition] == expected_utility
   end
 end
 
@@ -40,15 +40,32 @@ end
   provC = Province("C", 400)
   country = [provA, provB, provC]
 
-  # A and B are in the grand coalition
-  grand_coalition = [provA, provB]  # A and B form the grand coalition
-  test_tax_non_grand_coalition(country, grand_coalition, [700, 400, 380])
+  # Example 1 Grand coalition includes all provinces
+  grand_coalition = [provA, provB, provC]
+  tax_rate = 0.05
+  expected_utilities = Dict(
+      [provA, provB, provC] => 1500.0,               # No tax on grand coalition
+      [provA, provB] => 1100.0 * (1 - tax_rate),     # Taxed
+      [provA] => 700.0 * (1 - tax_rate),             # Taxed
+      [provB, provC] => 800.0 * (1 - tax_rate)       # Taxed
+  )
+  test_tax_non_grand_coalition_utilities(country, grand_coalition, tax_rate, expected_utilities)
 
-  # Only A is in the grand coalition
-  grand_coalition = [provA]  # Only A forms the grand coalition
-  test_tax_non_grand_coalition(country, grand_coalition, [700, 380, 380])
+  # Example 2 Grand coalition includes A and B
+  grand_coalition = [provA, provB]
+  expected_utilities = Dict(
+      [provA, provB] => 1100.0,                      # No tax on grand coalition
+      [provC] => 400.0 * (1 - tax_rate),             # Taxed
+      [provA, provC] => 1100.0 * (1 - tax_rate)      # Taxed
+  )
+  test_tax_non_grand_coalition_utilities(country, grand_coalition, tax_rate, expected_utilities)
 
-  # All provinces are in the grand coalition
-  grand_coalition = [provA, provB, provC]  # Everyone is in the grand coalition
-  test_tax_non_grand_coalition(country, grand_coalition, [700, 400, 400])
+  # Example 3 Grand coalition includes only A
+  grand_coalition = [provA]
+  expected_utilities = Dict(
+      [provA] => 700.0,                              # No tax on grand coalition
+      [provB, provC] => 800.0 * (1 - tax_rate),      # Taxed
+      [provA, provB] => 1100.0 * (1 - tax_rate)      # Taxed
+  )
+  test_tax_non_grand_coalition_utilities(country, grand_coalition, tax_rate, expected_utilities)
 end
