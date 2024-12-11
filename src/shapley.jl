@@ -1,9 +1,16 @@
 using Combinatorics
 
-export calculate_shapely, format_shapley_values, shapley_point, monte_carlo_shapley_point
+export shapley_point, monte_carlo_shapley_point
 
 shapley_point(payoffs::Dict) = format_shapley_values(calculate_shapely(payoffs))
 
+"""
+    monte_carlo_shapley_point(players, payoff::Dict, max::Real; p = 0.95, t = 1, rng = Xoshiro(1337))
+
+Runs a Monte Carlo simulation based on the Type 0 algorithm provided in https://www.rand.org/pubs/research_memoranda/RM2651.html
+although the given algorithm assumes a bionomial distribution while ours is unknown yet almost surely bounded.
+We thus use a Hoeffding bound to determine the number of trials needed. 
+"""
 function monte_carlo_shapley_point(players, payoff::Dict, max::Real; p = 0.95, t = 1, rng = Xoshiro(1337))
   nplayers = length(players)
 
@@ -24,7 +31,12 @@ function monte_carlo_shapley_point(players, payoff::Dict, max::Real; p = 0.95, t
   return [(shapley_values[player] / trials) for player in players]
 end
 
-# Function to calculate the Shapley values based on the provided coalition structure and payoffs
+"""
+    calculate_shapely(payoffs::Dict)
+
+Computes the Shapley value exactly as per its definition, i.e. the average of all the marginal
+contributions among all permutations of players.
+"""
 function calculate_shapely(payoffs::Dict)
     players = Set()
     for (coalition, _) in payoffs
